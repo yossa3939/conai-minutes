@@ -1,0 +1,34 @@
+@page
+@model LoginWith2faModel
+
+@{
+    ViewData["Title"] = "二要素認証";
+}
+
+<h1 class="page-title">二要素認証</h1>
+
+<div class="card mt-6 max-w-md">
+    <p>認証アプリに表示されているコードを入力してください。</p>
+    <form method="post" asp-route-returnUrl="@Model.ReturnUrl" class="mt-4">
+        <input asp-for="RememberMe" type="hidden" />
+        <div asp-validation-summary="ModelOnly" role="alert"></div>
+        <div class="mb-4">
+            <label asp-for="Input.TwoFactorCode" class="form-label"></label>
+            <input asp-for="Input.TwoFactorCode" class="input-field" autocomplete="off" aria-describedby="Input_TwoFactorCode-error" />
+            <span asp-validation-for="Input.TwoFactorCode" id="Input_TwoFactorCode-error"></span>
+        </div>
+        <div class="mb-4 flex items-center gap-2">
+            <input asp-for="Input.RememberMachine" class="checkbox-field" />
+            <label asp-for="Input.RememberMachine" class="checkbox-label"></label>
+        </div>
+        <button type="submit" class="btn-primary w-full">ログイン</button>
+    </form>
+</div>
+
+<p class="mt-4">
+    認証アプリを使えないときは、<a id="recovery-code-login" asp-page="./LoginWithRecoveryCode" asp-route-returnUrl="@Model.ReturnUrl" class="btn-link">回復コードでログイン</a>できます。
+</p>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

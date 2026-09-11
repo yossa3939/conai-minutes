@@ -1,0 +1,7 @@
+@model Guid
+@* 議事録のダウンロード導線。閲覧画面と編集画面で同じものを出す。model は会議 ID。 *@
+<div class="flex flex-wrap gap-3">
+    @* アプリを下位パスに置いても壊れないよう、~ から解決する *@
+    <a class="btn-secondary" href="@Url.Content($"~/api/meetings/{Model}/minutes?format=md")" download>Markdown（.md）をダウンロード</a>
+    <a class="btn-secondary" href="@Url.Content($"~/api/meetings/{Model}/minutes?format=txt")" download>テキスト（.txt）をダウンロード</a>
+</div>

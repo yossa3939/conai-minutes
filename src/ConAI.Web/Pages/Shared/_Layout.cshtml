@@ -1,0 +1,38 @@
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Antiforgery
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - @AppInfo.Name</title>
+    <meta name="csrf" content="@Antiforgery.GetAndStoreTokens(Context).RequestToken" />
+    <link rel="stylesheet" href="~/css/app.css" />
+    @await RenderSectionAsync("Styles", required: false)
+</head>
+<body>
+    <header class="border-b border-border bg-card">
+        <nav class="mx-auto flex max-w-5xl flex-wrap items-center gap-x-6 gap-y-1 px-4 py-2">
+            <a class="text-lg font-bold text-primary no-underline" asp-area="" asp-page="/Index">@AppInfo.Name</a>
+            @if (User.Identity?.IsAuthenticated == true)
+            {
+                <a class="nav-link" asp-area="" asp-page="/Templates/Index">テンプレート</a>
+                <a class="nav-link" asp-area="" asp-page="/Chat/Index">議事録を探す</a>
+                <a class="nav-link" asp-area="" asp-page="/Notifications/Index">通知</a>
+            }
+            <partial name="_LoginPartial" />
+        </nav>
+    </header>
+
+    <main class="mx-auto max-w-5xl px-4 py-8">
+        @RenderBody()
+    </main>
+
+    <footer class="mx-auto max-w-5xl px-4 py-6 text-sm text-muted-foreground">
+        @AppInfo.Copyright
+    </footer>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

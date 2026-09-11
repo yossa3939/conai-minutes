@@ -1,0 +1,25 @@
+@page
+@model ResendEmailConfirmationModel
+
+@{
+    ViewData["Title"] = "確認メールの再送";
+}
+
+<h1 class="page-title">確認メールの再送</h1>
+
+<div class="card mt-6 max-w-md">
+    <p>登録しているメールアドレスを入力してください。</p>
+    <form method="post" class="mt-4">
+        <div asp-validation-summary="ModelOnly" role="alert"></div>
+        <div class="mb-4">
+            <label asp-for="Input.Email" class="form-label"></label>
+            <input asp-for="Input.Email" class="input-field" autocomplete="username" aria-required="true" aria-describedby="Input_Email-error" />
+            <span asp-validation-for="Input.Email" id="Input_Email-error"></span>
+        </div>
+        <button type="submit" class="btn-primary w-full">確認メールを送る</button>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

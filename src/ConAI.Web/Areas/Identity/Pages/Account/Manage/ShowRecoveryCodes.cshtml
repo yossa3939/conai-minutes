@@ -1,0 +1,27 @@
+@page
+@model ShowRecoveryCodesModel
+
+@{
+    ViewData["Title"] = "回復コード";
+    ViewData["ActivePage"] = ManageNavPages.TwoFactorAuthentication;
+}
+
+<h2 class="section-title">回復コード</h2>
+
+<partial name="_StatusMessage" for="StatusMessage" />
+
+<div class="alert-destructive mt-4 max-w-md" role="alert">
+    このコードは一度しか表示されません。1 つのコードは 1 回だけ使えます。安全な場所に保管してください。
+</div>
+
+<div class="card mt-4 max-w-md">
+    <div class="grid grid-cols-1 gap-2 sm:grid-cols-2">
+        @foreach (var recoveryCode in Model.RecoveryCodes)
+        {
+            <code class="rounded bg-muted px-3 py-2 font-mono text-sm">@recoveryCode</code>
+        }
+    </div>
+    <div class="mt-6 flex flex-wrap gap-3">
+        <a asp-page="./TwoFactorAuthentication" class="btn-secondary">二要素認証に戻る</a>
+    </div>
+</div>

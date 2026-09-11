@@ -1,0 +1,23 @@
+@page
+@model IndexModel
+
+@{
+    ViewData["Title"] = "プロフィール";
+    ViewData["ActivePage"] = ManageNavPages.Index;
+}
+
+<h2 class="section-title">プロフィール</h2>
+
+<partial name="_StatusMessage" for="StatusMessage" />
+
+<div class="card mt-4 max-w-md">
+    <div>
+        <label asp-for="Username" class="form-label"></label>
+        <input asp-for="Username" class="input-field" readonly />
+        <p class="form-help">メールアドレスはこの画面からは変更できません。</p>
+    </div>
+    <div class="mt-6 flex flex-wrap gap-3">
+        <a asp-page="./ChangePassword" class="btn-secondary">パスワードを変更</a>
+        <a asp-page="./TwoFactorAuthentication" class="btn-secondary">二要素認証の設定</a>
+    </div>
+</div>

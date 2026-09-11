@@ -1,0 +1,16 @@
+<nav aria-label="アカウント管理">
+    <ul class="flex flex-col gap-1">
+        <li>
+            <a id="profile" class="@ManageNavPages.IndexNavClass(ViewContext)" asp-page="./Index">プロフィール</a>
+        </li>
+        <li>
+            <a id="change-password" class="@ManageNavPages.ChangePasswordNavClass(ViewContext)" asp-page="./ChangePassword">パスワード</a>
+        </li>
+        <li>
+            <a id="two-factor" class="@ManageNavPages.TwoFactorAuthenticationNavClass(ViewContext)" asp-page="./TwoFactorAuthentication">二要素認証</a>
+        </li>
+        <li>
+            <a id="personal-data" class="@ManageNavPages.PersonalDataNavClass(ViewContext)" asp-page="./PersonalData">個人データ</a>
+        </li>
+    </ul>
+</nav>

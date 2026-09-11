@@ -1,0 +1,19 @@
+@page
+@model ErrorModel
+@{
+    ViewData["Title"] = "エラー";
+}
+
+<h1 class="page-title text-destructive">エラーが発生しました</h1>
+<p class="mt-4">処理中にエラーが発生しました。時間をおいて、もう一度お試しください。</p>
+
+@if (Model.ShowRequestId)
+{
+    <p class="mt-4 text-sm text-muted-foreground">
+        リクエスト ID：<code>@Model.RequestId</code>
+    </p>
+}
+
+<p class="mt-6">
+    <a asp-page="/Index" class="btn-secondary">トップへ戻る</a>
+</p>

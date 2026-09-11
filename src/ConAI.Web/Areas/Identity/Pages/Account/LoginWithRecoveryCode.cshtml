@@ -1,0 +1,25 @@
+@page
+@model LoginWithRecoveryCodeModel
+
+@{
+    ViewData["Title"] = "回復コードでログイン";
+}
+
+<h1 class="page-title">回復コードでログイン</h1>
+
+<div class="card mt-6 max-w-md">
+    <p>回復コードは 1 つにつき 1 回だけ使えます。このログインは記憶されないため、次回も認証アプリのコードか回復コードを求められます。</p>
+    <form method="post" class="mt-4">
+        <div asp-validation-summary="ModelOnly" role="alert"></div>
+        <div class="mb-4">
+            <label asp-for="Input.RecoveryCode" class="form-label"></label>
+            <input asp-for="Input.RecoveryCode" class="input-field" autocomplete="off" aria-describedby="Input_RecoveryCode-error" />
+            <span asp-validation-for="Input.RecoveryCode" id="Input_RecoveryCode-error"></span>
+        </div>
+        <button type="submit" class="btn-primary w-full">ログイン</button>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

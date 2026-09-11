@@ -1,0 +1,28 @@
+@page "{id:guid}"
+@model ConAI.Web.Pages.Templates.DeleteModel
+@{
+    ViewData["Title"] = "テンプレートを削除";
+}
+
+<h1 class="page-title text-destructive">テンプレートを削除</h1>
+
+<p class="mt-4">次のテンプレートを削除します。この操作は元に戻せません。</p>
+
+<div class="card mt-6 max-w-3xl">
+    <dl class="grid grid-cols-1 gap-y-3 sm:grid-cols-[8rem_1fr] sm:gap-x-4">
+        <dt class="font-medium">名前</dt>
+        <dd>@Model.Template.Name</dd>
+        <dt class="font-medium">使っている会議</dt>
+        <dd>@Model.ConfirmMessage</dd>
+    </dl>
+</div>
+
+@if (Model.ErrorMessage is not null)
+{
+    <div class="alert-destructive mt-6 max-w-3xl" role="alert">@Model.ErrorMessage</div>
+}
+
+<form method="post" class="mt-6 flex flex-wrap gap-3">
+    <button type="submit" class="btn-destructive" disabled="@(!Model.CanDelete)">削除する</button>
+    <a class="btn-secondary" asp-page="./Index">戻る</a>
+</form>

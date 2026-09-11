@@ -1,0 +1,54 @@
+{
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft.AspNetCore": "Warning"
+    }
+  },
+  "AllowedHosts": "localhost;127.0.0.1",
+  "Storage": {
+    "DataRoot": "App_Data"
+  },
+  "Gemini": {
+    "Provider": "Google",
+    "ApiKey": "",
+    "LiveModel": "gemini-3.1-flash-live-preview",
+    "LiveTranslateModel": "gemini-3.5-live-translate-preview",
+    "GenerateModel": "gemini-3.8-flash",
+    "SelectModel": "gemini-3.8-flash",
+    "GenerateThinkingLevel": "",
+    "SelectThinkingLevel": "",
+    "ChatThinkingLevel": "",
+    "InlineLimitMb": 20,
+    "UseSessionResumption": false
+  },
+  "Live": {
+    "AllowedOrigins": [],
+    "MaxSessionsPerUser": 1
+  },
+  "Upload": {
+    "MaxFileSizeMb": 200,
+    "MaxExtractedTextChars": 2000000
+  },
+  "Auth": {
+    "AllowSelfRegistration": true
+  },
+  "Notifications": {
+    "Provider": "Http",
+    "PublicBaseUrl": "",
+    "ExcerptChars": 1500,
+    "MaxRetries": 3,
+    "TimeoutSeconds": 10,
+    "MaxEndpointsPerUser": 10,
+    "MaxConcurrentMeetings": 4
+  },
+  "Smtp": {
+    "Host": "",
+    "Port": 587,
+    "TimeoutSeconds": 30,
+    "Security": "StartTls",
+    "UserName": "",
+    "FromAddress": "",
+    "FromName": "議事録"
+  }
+}

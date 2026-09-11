@@ -1,0 +1,30 @@
+@page "{id:guid}"
+@model ConAI.Web.Pages.Meetings.DeleteModel
+@{
+    ViewData["Title"] = "会議を削除";
+}
+
+<h1 class="page-title text-destructive">会議を削除</h1>
+
+<p class="mt-4">次の会議を削除します。添付ファイルもすべて消えます。この操作は元に戻せません。</p>
+
+<div class="card mt-6 max-w-xl">
+    <dl class="grid grid-cols-1 gap-y-3 sm:grid-cols-[8rem_1fr] sm:gap-x-4">
+        <dt class="font-medium">会議名</dt>
+        <dd>@Model.Meeting.Title</dd>
+        <dt class="font-medium">開催日時</dt>
+        <dd>@(Model.Meeting.HeldAt?.ToString(DisplayFormats.HeldAt) ?? "未設定")</dd>
+        <dt class="font-medium">添付</dt>
+        <dd>@Model.Meeting.Files.Count 件</dd>
+    </dl>
+</div>
+
+@if (Model.ErrorMessage is not null)
+{
+    <div class="alert-destructive mt-6 max-w-xl" role="alert">@Model.ErrorMessage</div>
+}
+
+<form method="post" class="mt-6 flex flex-wrap gap-3">
+    <button type="submit" class="btn-destructive" disabled="@(!Model.CanDelete)">削除する</button>
+    <a class="btn-secondary" asp-page="./Edit" asp-route-id="@Model.Meeting.Id">戻る</a>
+</form>

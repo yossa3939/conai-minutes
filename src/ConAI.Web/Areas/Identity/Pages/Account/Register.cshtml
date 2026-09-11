@@ -1,0 +1,50 @@
+@page
+@model RegisterModel
+
+@{
+    ViewData["Title"] = "登録";
+}
+
+<h1 class="page-title">登録</h1>
+
+<div class="card mt-6 max-w-md">
+    <form id="registerForm" asp-route-returnUrl="@Model.ReturnUrl" method="post">
+        <div asp-validation-summary="ModelOnly" role="alert"></div>
+        <div class="mb-4">
+            <label asp-for="Input.Email" class="form-label"></label>
+            <input asp-for="Input.Email" class="input-field" autocomplete="username" aria-required="true" aria-describedby="Input_Email-error" />
+            <span asp-validation-for="Input.Email" id="Input_Email-error"></span>
+        </div>
+        <div class="mb-4">
+            <label asp-for="Input.Password" class="form-label"></label>
+            <input asp-for="Input.Password" class="input-field" autocomplete="new-password" aria-required="true" aria-describedby="Input_Password-error" />
+            <span asp-validation-for="Input.Password" id="Input_Password-error"></span>
+            <p class="form-help">6 文字以上で、大文字、小文字、数字、記号をそれぞれ 1 つ以上含めてください。</p>
+        </div>
+        <div class="mb-4">
+            <label asp-for="Input.ConfirmPassword" class="form-label"></label>
+            <input asp-for="Input.ConfirmPassword" class="input-field" autocomplete="new-password" aria-required="true" aria-describedby="Input_ConfirmPassword-error" />
+            <span asp-validation-for="Input.ConfirmPassword" id="Input_ConfirmPassword-error"></span>
+        </div>
+        <button id="registerSubmit" type="submit" class="btn-primary w-full">登録</button>
+    </form>
+</div>
+
+@if (Model.ExternalLogins?.Count > 0)
+{
+    <div class="card mt-6 max-w-md">
+        <h2 class="card-title">外部サービスで登録</h2>
+        <form id="external-account" asp-page="./ExternalLogin" asp-route-returnUrl="@Model.ReturnUrl" method="post">
+            <div class="mt-4 flex flex-wrap gap-3">
+                @foreach (var provider in Model.ExternalLogins)
+                {
+                    <button type="submit" class="btn-secondary" name="provider" value="@provider.Name">@provider.DisplayName</button>
+                }
+            </div>
+        </form>
+    </div>
+}
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

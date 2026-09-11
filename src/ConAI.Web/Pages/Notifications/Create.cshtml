@@ -1,0 +1,62 @@
+@page
+@using ConAI.Web.Notifications
+@model ConAI.Web.Pages.Notifications.CreateModel
+@{
+    ViewData["Title"] = "宛先を登録";
+}
+
+<h1 class="page-title">宛先を登録</h1>
+
+<form method="post" class="card mt-6 max-w-3xl">
+    <div asp-validation-summary="ModelOnly" role="alert"></div>
+
+    <div class="mb-4">
+        <label asp-for="Input.Name" class="form-label"></label>
+        <input asp-for="Input.Name" class="input-field" autofocus aria-describedby="Input_Name-error" />
+        <span asp-validation-for="Input.Name" id="Input_Name-error"></span>
+    </div>
+
+    <div class="mb-4">
+        <label asp-for="Input.Kind" class="form-label"></label>
+        <select asp-for="Input.Kind" class="input-field" aria-describedby="Input_Kind-help">
+            @foreach (var kind in WebhookKinds.All)
+            {
+                <option value="@kind">@WebhookKinds.DisplayName(kind)</option>
+            }
+        </select>
+        <span class="form-help" id="Input_Kind-help">登録したあとで種別は変えられません。変えたいときは登録し直してください。</span>
+    </div>
+
+    <div class="mb-4">
+        <label asp-for="Input.Url" class="form-label"></label>
+        <input asp-for="Input.Url" class="input-field" aria-describedby="Input_Url-help Input_Url-error" />
+        <span class="form-help" id="Input_Url-help">チャット側で発行した受信 URL を貼り付けます。次の形のものだけを受け付けます。</span>
+        <ul class="form-help list-disc pl-5">
+            @foreach (var kind in WebhookKinds.All)
+            {
+                <li>@WebhookKinds.DisplayName(kind)：@WebhookKinds.UrlExample(kind)</li>
+            }
+        </ul>
+        <span asp-validation-for="Input.Url" id="Input_Url-error"></span>
+    </div>
+
+    <div class="mb-4 flex items-center gap-2">
+        <input asp-for="Input.NotifyOnSuccess" class="checkbox-field" />
+        <label asp-for="Input.NotifyOnSuccess" class="checkbox-label"></label>
+    </div>
+
+    <div class="mb-4 flex items-center gap-2">
+        <input asp-for="Input.NotifyOnFailure" class="checkbox-field" />
+        <label asp-for="Input.NotifyOnFailure" class="checkbox-label"></label>
+    </div>
+
+    <div class="mb-4 flex items-center gap-2">
+        <input asp-for="Input.IsEnabled" class="checkbox-field" />
+        <label asp-for="Input.IsEnabled" class="checkbox-label"></label>
+    </div>
+
+    <div class="mt-6 flex flex-wrap gap-3">
+        <button type="submit" class="btn-primary">保存する</button>
+        <a class="btn-secondary" asp-page="./Index">戻る</a>
+    </div>
+</form>

@@ -1,0 +1,64 @@
+@page
+@using ConAI.Web.Notifications
+@model ConAI.Web.Pages.Notifications.IndexModel
+@{
+    ViewData["Title"] = "通知";
+}
+
+<div class="flex flex-wrap items-center justify-between gap-3">
+    <h1 class="page-title">通知</h1>
+    <a class="btn-primary" asp-page="./Create">宛先を登録</a>
+</div>
+
+<p class="mt-4 text-muted-foreground">
+    議事録の生成が終わったとき、登録した宛先へ知らせます。宛先はこの一覧のものが、あなたのすべての会議に使われます。
+</p>
+
+@if (Model.Endpoints.Count == 0)
+{
+    <p class="mt-6 text-muted-foreground">宛先はまだありません。</p>
+}
+else
+{
+    <div class="table-scroll mt-6">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th scope="col">名前</th>
+                    <th scope="col">種別</th>
+                    <th scope="col">宛先</th>
+                    <th scope="col">状態</th>
+                    <th scope="col">最終送信</th>
+                    <th scope="col"><span class="sr-only">操作</span></th>
+                </tr>
+            </thead>
+            <tbody>
+            @foreach (var endpoint in Model.Endpoints)
+            {
+                <tr data-endpoint-id="@endpoint.Id">
+                    <td>@endpoint.Name</td>
+                    <td>@WebhookKinds.DisplayName(endpoint.Kind)</td>
+                    <td class="font-mono text-sm">@endpoint.UrlHint</td>
+                    <td>
+                        @if (endpoint.IsEnabled)
+                        {
+                            <span class="badge-done">有効</span>
+                        }
+                        else
+                        {
+                            <span class="badge-failed">無効</span>
+                        }
+                    </td>
+                    <td>@ConAI.Web.Pages.Notifications.IndexModel.LastResultText(endpoint)</td>
+                    <td>
+                        <div class="flex flex-wrap items-center gap-2">
+                            <a class="btn-secondary" asp-page="./Edit" asp-route-id="@endpoint.Id">編集</a>
+                            <a class="btn-secondary" asp-page="./Delete" asp-route-id="@endpoint.Id">削除</a>
+                        </div>
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+}

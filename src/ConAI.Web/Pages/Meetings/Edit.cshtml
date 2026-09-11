@@ -1,0 +1,331 @@
+@page "{id:guid}"
+@model ConAI.Web.Pages.Meetings.EditModel
+@using ConAI.Web.Data
+@{
+    ViewData["Title"] = Model.Meeting.Title;
+    var apiBase = Url.Content("~/api/meetings/" + Model.Meeting.Id);
+    var wsPath = Url.Content("~/api/live/transcribe");
+    var workletPath = Url.Content("~/js/pcm-processor.js");
+    // 生成が Gemini へ渡す順（MinutesGenerationService も CreatedAt 順）。表の No はこの並びを示す
+    var mediaFiles = Model.Meeting.Files
+        .Where(f => f.Kind is MeetingFileKind.Media or MeetingFileKind.Recording)
+        .OrderBy(f => f.CreatedAt)
+        .ToList();
+}
+
+<div id="conai-meeting"
+     data-meeting-id="@Model.Meeting.Id"
+     data-api-base="@apiBase"
+     data-ws-path="@wsPath"
+     data-worklet-path="@workletPath"
+     data-live="@Model.Meeting.LiveMode.ToString().ToLowerInvariant()"
+     data-translate="@Model.Meeting.TranslateMode.ToString().ToLowerInvariant()"
+     data-target-language="@Model.Meeting.TargetLanguage"
+     data-generation-status="@Model.Meeting.GenerationStatus">
+
+    <form method="post" id="meeting-form">
+        @* 保存はこの画面で 1 つだけ。基本情報・文字起こし・議事録をまとめて保存する（RV 3）。*@
+        <div class="sticky top-0 z-10 flex flex-wrap items-center justify-between gap-3 bg-background py-3">
+            <h1 class="page-title">@Model.Meeting.Title</h1>
+            <div class="flex flex-wrap gap-3">
+                <button type="submit" id="save-button" class="btn-primary">保存</button>
+                <a class="btn-secondary" asp-page="./Details" asp-route-id="@Model.Meeting.Id">閲覧</a>
+                <a class="btn-destructive" asp-page="./Delete" asp-route-id="@Model.Meeting.Id">削除</a>
+            </div>
+        </div>
+
+        @if (Model.SavedMessage is not null)
+        {
+            <div class="alert-success mt-4" role="status">@Model.SavedMessage</div>
+        }
+
+        <div class="card mt-6">
+            <h2 class="card-title">基本情報</h2>
+            <div class="mt-4 max-w-xl">
+                <div asp-validation-summary="ModelOnly" role="alert"></div>
+
+                <div class="mb-4">
+                    <label asp-for="Basic.Title" class="form-label"></label>
+                    <input asp-for="Basic.Title" class="input-field" aria-describedby="Basic_Title-error" />
+                    <span asp-validation-for="Basic.Title" id="Basic_Title-error"></span>
+                </div>
+
+                <div class="mb-4">
+                    <label asp-for="Basic.HeldAt" class="form-label"></label>
+                    <input asp-for="Basic.HeldAt" type="text" class="input-field" data-conai-datetime
+                           placeholder="@DisplayFormats.HeldAt" autocomplete="off" aria-describedby="Basic_HeldAt-error" />
+                    <span asp-validation-for="Basic.HeldAt" id="Basic_HeldAt-error"></span>
+                </div>
+
+                <fieldset class="mb-4">
+                    <legend class="form-label">モード</legend>
+                    <div class="capture-source-options">
+                        <label class="capture-source-option">
+                            <input asp-for="Basic.LiveMode" type="radio" value="true" id="Basic_LiveMode_live" />
+                            <span>Live モード</span>
+                        </label>
+                        <label class="capture-source-option">
+                            <input asp-for="Basic.LiveMode" type="radio" value="false" id="Basic_LiveMode_file" />
+                            <span>ファイルモード</span>
+                        </label>
+                    </div>
+                    <span class="form-help">Live モードは録音してその場で文字起こしします。ファイルモードは添付した音声・動画から、生成時に文字起こしします。モードを変えたら「保存」で反映されます。</span>
+                </fieldset>
+
+                <div class="mb-4 flex items-center gap-2">
+                    <input asp-for="Basic.TranslateMode" class="checkbox-field" />
+                    <label asp-for="Basic.TranslateMode" class="checkbox-label"></label>
+                </div>
+
+                <div class="mb-4" id="target-language-field" hidden="@(Model.Basic.TranslateMode ? null : "hidden")">
+                    <label asp-for="Basic.TargetLanguage" class="form-label"></label>
+                    <select asp-for="Basic.TargetLanguage" asp-items="Model.Languages" class="input-field" aria-describedby="Basic_TargetLanguage-error"></select>
+                    <span asp-validation-for="Basic.TargetLanguage" id="Basic_TargetLanguage-error"></span>
+                </div>
+            </div>
+        </div>
+
+        @if (Model.Meeting.LiveMode)
+        {
+            <div class="card mt-6" id="recording-card">
+                <h2 class="card-title">録音</h2>
+
+                <fieldset id="capture-source" class="mt-4" aria-describedby="capture-source-note">
+                    <legend class="form-label">音声の取り込み元</legend>
+                    <div class="capture-source-options">
+                        <label class="capture-source-option">
+                            <input type="radio" name="capture-source" value="mic" checked />
+                            <span>マイクのみ</span>
+                        </label>
+                        <label class="capture-source-option">
+                            <input type="radio" name="capture-source" value="mic-tab" />
+                            <span>マイク＋PC 音声</span>
+                        </label>
+                        <label class="capture-source-option">
+                            <input type="radio" name="capture-source" value="tab" />
+                            <span>PC 音声のみ</span>
+                        </label>
+                    </div>
+                    <div id="capture-source-note" class="mt-3 hidden text-sm text-muted-foreground"></div>
+                </fieldset>
+
+                @* Windows は既定の録音デバイスが「ステレオ ミキサー」のことがあり、そのままでは声が入らない。使うマイクを利用者が選ぶ *@
+                <div id="mic-device-field" class="mt-4 max-w-xl">
+                    <label for="mic-device" class="form-label">マイク</label>
+                    <select id="mic-device" class="input-field" aria-describedby="mic-device-note">
+                        <option value="">ブラウザの既定のマイク</option>
+                    </select>
+                    <div id="mic-device-note" class="mt-2 hidden text-sm text-muted-foreground"></div>
+                </div>
+
+                <div id="capture-notice" class="alert-note mt-4 hidden" role="status" aria-live="polite"></div>
+
+                <div class="mt-4 flex flex-wrap items-center gap-3">
+                    <button type="button" id="record-button" class="btn-record" aria-label="録音を開始">録音を開始</button>
+                    <span id="live-status" class="text-muted-foreground">未接続</span>
+                </div>
+            </div>
+        }
+
+        <div class="card mt-6">
+            <h2 class="card-title">音声・動画</h2>
+
+            <div class="mt-4 max-w-xl">
+                <label for="media-input" class="form-label">ファイルを追加</label>
+                <input type="file" id="media-input" class="input-field" multiple accept="@Model.MediaAccept" aria-describedby="media-input-help" />
+                <span id="media-input-help" class="form-help">文字起こしの元になる音声・動画（mp3 / m4a / aac / flac / ogg / wav / mp4 / mov / webm）。録音した音声もここに並びます。</span>
+            </div>
+
+            <div id="media-error" class="alert-destructive mt-4 hidden" role="alert"></div>
+
+            <div class="table-scroll mt-4">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th scope="col">No</th>
+                            <th scope="col">ファイル名</th>
+                            <th scope="col">サイズ</th>
+                            <th scope="col"><span class="sr-only">操作</span></th>
+                        </tr>
+                    </thead>
+                    <tbody id="media-list">
+                    @for (var i = 0; i < mediaFiles.Count; i++)
+                    {
+                        var file = mediaFiles[i];
+                        <tr data-file-id="@file.Id">
+                            <td>@(i + 1)</td>
+                            <td><a href="/api/meetings/@Model.Meeting.Id/files/@file.Id">@file.OriginalFileName</a></td>
+                            <td>@(file.SizeBytes / 1024) KB</td>
+                            <td>
+                                <button type="button" class="btn-destructive file-delete" data-file-id="@file.Id">削除</button>
+                            </td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="card mt-6">
+            <h2 class="card-title">参考資料</h2>
+
+            <div class="mt-4 max-w-xl">
+                <label for="reference-input" class="form-label">ファイルを追加</label>
+                <input type="file" id="reference-input" class="input-field" multiple accept="@Model.ReferenceAccept" aria-describedby="reference-input-help" />
+                <span id="reference-input-help" class="form-help">議事録を作るときに参考として渡す資料（pdf / txt / md / docx / pptx / xlsx）。</span>
+            </div>
+
+            <div id="reference-error" class="alert-destructive mt-4 hidden" role="alert"></div>
+
+            <div class="table-scroll mt-4">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th scope="col">ファイル名</th>
+                            <th scope="col">サイズ</th>
+                            <th scope="col"><span class="sr-only">操作</span></th>
+                        </tr>
+                    </thead>
+                    <tbody id="reference-list">
+                    @foreach (var file in Model.Meeting.Files.Where(f => f.Kind == MeetingFileKind.Reference).OrderBy(f => f.CreatedAt))
+                    {
+                        <tr data-file-id="@file.Id">
+                            <td><a href="/api/meetings/@Model.Meeting.Id/files/@file.Id">@file.OriginalFileName</a></td>
+                            <td>@(file.SizeBytes / 1024) KB</td>
+                            <td>
+                                <button type="button" class="btn-destructive file-delete" data-file-id="@file.Id">削除</button>
+                            </td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="card mt-6">
+            <h2 class="card-title">文字起こし</h2>
+            <div class="mt-4">
+                @* 見出しと同じ「文字起こし」のラベルは出さない。live の文字は録音中にこの欄へ直接追記される。 *@
+                <div class="mb-4">
+                    <textarea asp-for="Transcript.Transcription" id="transcription" class="input-field" rows="8" aria-label="文字起こし"></textarea>
+                    <span asp-validation-for="Transcript.Transcription" class="form-help text-destructive"></span>
+                </div>
+                @if (Model.Meeting.TranslateMode)
+                {
+                    <div class="mb-4">
+                        <label asp-for="Transcript.TranslatedTranscription" class="form-label"></label>
+                        <textarea asp-for="Transcript.TranslatedTranscription" id="translated-transcription" class="input-field" rows="8"></textarea>
+                        <span asp-validation-for="Transcript.TranslatedTranscription" class="form-help text-destructive"></span>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <div class="card mt-6">
+            <h2 class="card-title">議事録</h2>
+
+            <div class="mt-4 flex flex-wrap items-center gap-3">
+                <button type="button" id="generate-button" class="btn-primary"
+                        data-has-minutes="@((!string.IsNullOrWhiteSpace(Model.Meeting.Minutes)).ToString().ToLowerInvariant())"
+                        disabled="@(!Model.CanGenerate)">議事録を生成</button>
+                <div class="flex items-center gap-2">
+                    <label for="minutes-template" class="whitespace-nowrap font-medium">テンプレート</label>
+                    <div class="w-56">
+                        <select id="minutes-template" name="Basic.MinutesTemplateId" class="input-field">
+                            @foreach (var item in Model.MinutesTemplates)
+                            {
+                                <option value="@item.Value" selected="@(item.Selected ? "selected" : null)">@item.Text</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+                <span asp-validation-for="Basic.MinutesTemplateId" class="form-help text-destructive"></span>
+                <span id="generation-status" class="text-muted-foreground" aria-live="polite">
+                    @switch (Model.Meeting.GenerationStatus)
+                    {
+                        case GenerationStatus.Queued: @:待機中
+                            break;
+                        case GenerationStatus.Running: @:実行中
+                            break;
+                        case GenerationStatus.Succeeded: @:完了
+                            break;
+                        case GenerationStatus.Failed: @:失敗
+                            break;
+                    }
+                </span>
+            </div>
+
+            @if (Model.GenerateDisabledReason is not null)
+            {
+                <span class="form-help">@Model.GenerateDisabledReason</span>
+            }
+
+            @if (Model.Meeting.GenerationStatus == GenerationStatus.Failed && Model.Meeting.GenerationError is not null)
+            {
+                <div class="alert-destructive mt-4" role="alert">@Model.Meeting.GenerationError</div>
+            }
+
+            @{
+                var hasMinutes = !string.IsNullOrWhiteSpace(Model.Meeting.Minutes);
+                const string minutesTabBase = "rounded-[0.375rem] px-4 py-1.5 text-sm font-medium transition-colors";
+                const string minutesTabActive = "bg-card text-foreground shadow-sm";
+                const string minutesTabInactive = "text-muted-foreground";
+            }
+            <div class="mt-4" id="minutes-block">
+                <div class="flex flex-wrap items-center justify-end gap-3">
+                    <div class="inline-flex rounded-[0.375rem] border border-border bg-muted p-0.5"
+                         role="group" aria-label="議事録の表示切替">
+                        <button type="button" id="minutes-preview-tab"
+                                class="@minutesTabBase @(hasMinutes ? minutesTabActive : minutesTabInactive)"
+                                aria-pressed="@(hasMinutes ? "true" : "false")"
+                                aria-controls="minutes-preview">プレビュー</button>
+                        <button type="button" id="minutes-edit-tab"
+                                class="@minutesTabBase @(hasMinutes ? minutesTabInactive : minutesTabActive)"
+                                aria-pressed="@(hasMinutes ? "false" : "true")"
+                                aria-controls="minutes-edit">編集</button>
+                    </div>
+                </div>
+
+                <div id="minutes-preview" class="conai-prose mt-4" hidden="@(hasMinutes ? null : "hidden")">
+                    @if (hasMinutes)
+                    {
+                        @Html.Raw(Model.MinutesHtml)
+                    }
+                    else
+                    {
+                        <p class="text-muted-foreground">議事録はまだありません。生成するか、編集タブで入力してください。</p>
+                    }
+                </div>
+
+                <div id="minutes-edit" class="mt-4" hidden="@(hasMinutes ? "hidden" : null)">
+                    <textarea asp-for="Minutes" id="minutes" class="input-field" rows="12" aria-label="議事録（Markdown）"></textarea>
+                    <span asp-validation-for="Minutes" class="form-help text-destructive"></span>
+                </div>
+            </div>
+
+            @if (!string.IsNullOrWhiteSpace(Model.Meeting.Minutes))
+            {
+                <div class="mt-4">
+                    <partial name="_MinutesDownloadLinks" model="Model.Meeting.Id" />
+                </div>
+            }
+
+            <div class="mt-4">
+                <a class="btn-link" asp-page="./Details" asp-route-id="@Model.Meeting.Id">閲覧画面で見る</a>
+            </div>
+        </div>
+    </form>
+</div>
+
+@section Styles {
+    <link rel="stylesheet" href="~/lib/flatpickr/dist/flatpickr.min.css" asp-append-version="true" />
+}
+
+@section Scripts {
+    <script src="~/lib/flatpickr/dist/flatpickr.min.js" asp-append-version="true"></script>
+    <script src="~/lib/flatpickr/dist/l10n/ja.js" asp-append-version="true"></script>
+    <script src="~/js/held-at-picker.js" type="module" asp-append-version="true"></script>
+    <script src="~/js/translate-toggle.js" type="module" asp-append-version="true"></script>
+    <script src="~/js/minutes-editor.js" type="module" asp-append-version="true"></script>
+    <script src="~/js/meeting.js" type="module" asp-append-version="true"></script>
+}

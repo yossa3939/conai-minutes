@@ -1,0 +1,80 @@
+@page "{id:guid}"
+@model ConAI.Web.Pages.Meetings.DetailsModel
+@using ConAI.Web.Data
+@{
+    ViewData["Title"] = Model.Meeting.Title;
+}
+
+<div class="flex flex-wrap items-center justify-between gap-3">
+    <h1 class="page-title">@Model.Meeting.Title</h1>
+    <a class="btn-secondary" asp-page="./Edit" asp-route-id="@Model.Meeting.Id">編集</a>
+</div>
+
+<p class="mt-2 text-muted-foreground">
+    開催日時：@(Model.Meeting.HeldAt?.ToString(DisplayFormats.HeldAt) ?? "未設定")
+    @if (Model.Meeting.TranslateMode)
+    {
+        <span>／翻訳先：@SupportedLanguages.DisplayName(Model.Meeting.TargetLanguage)</span>
+    }
+</p>
+
+<div class="card mt-6">
+    <h2 class="card-title">議事録</h2>
+    @if (string.IsNullOrWhiteSpace(Model.Meeting.Minutes))
+    {
+        <p class="mt-4 text-muted-foreground">議事録はまだありません。</p>
+    }
+    else
+    {
+        <div class="mt-4">
+            <partial name="_MinutesDownloadLinks" model="Model.Meeting.Id" />
+        </div>
+        <div class="conai-prose mt-4">@Html.Raw(Model.MinutesHtml)</div>
+        @if (Model.CanNotify)
+        {
+            <div class="mt-6 border-t border-border pt-4"
+                 data-notify data-notify-url="@Url.Content("~/api/meetings/" + Model.Meeting.Id + "/notify")">
+                <button type="button" class="btn-secondary" data-notify-button>通知を送る</button>
+                <span class="form-help">登録した宛先のうち、有効なものすべてに送ります。</span>
+                <p class="mt-4 hidden" data-notify-result role="status"></p>
+            </div>
+        }
+    }
+</div>
+
+<div class="card mt-6">
+    <h2 class="card-title">文字起こし</h2>
+    @if (string.IsNullOrWhiteSpace(Model.Meeting.Transcription))
+    {
+        <p class="mt-4 text-muted-foreground">文字起こしはまだありません。</p>
+    }
+    else
+    {
+        <pre class="conai-live-box mt-4">@Model.Meeting.Transcription</pre>
+    }
+    @if (Model.Meeting.TranslateMode && !string.IsNullOrWhiteSpace(Model.Meeting.TranslatedTranscription))
+    {
+        <pre class="conai-live-box mt-4">@Model.Meeting.TranslatedTranscription</pre>
+    }
+</div>
+
+<div class="card mt-6">
+    <h2 class="card-title">添付ファイル</h2>
+    @if (Model.Meeting.Files.Count == 0)
+    {
+        <p class="mt-4 text-muted-foreground">添付はありません。</p>
+    }
+    else
+    {
+        <ul class="mt-4 list-disc pl-6">
+        @foreach (var file in Model.Meeting.Files.OrderBy(f => f.CreatedAt))
+        {
+            <li><a href="/api/meetings/@Model.Meeting.Id/files/@file.Id">@file.OriginalFileName</a></li>
+        }
+        </ul>
+    }
+</div>
+
+@section Scripts {
+    <script src="~/js/notify.js" type="module" asp-append-version="true"></script>
+}

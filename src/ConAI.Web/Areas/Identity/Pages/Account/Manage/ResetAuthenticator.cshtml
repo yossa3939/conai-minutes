@@ -1,0 +1,19 @@
+@page
+@model ResetAuthenticatorModel
+
+@{
+    ViewData["Title"] = "認証アプリのキーの作り直し";
+    ViewData["ActivePage"] = ManageNavPages.TwoFactorAuthentication;
+}
+
+<h2 class="section-title">認証アプリのキーの作り直し</h2>
+
+<div class="alert-destructive mt-4 max-w-md" role="alert">
+    キーを作り直すと、いま使っている認証アプリのコードは使えなくなります。登録し直すまで二要素認証は無効になります。
+</div>
+
+<div class="card mt-4 max-w-md">
+    <form method="post">
+        <button type="submit" class="btn-destructive">キーを作り直す</button>
+    </form>
+</div>

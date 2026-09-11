@@ -1,0 +1,60 @@
+@page
+@model ConAI.Web.Pages.Meetings.IndexModel
+@{
+    ViewData["Title"] = "会議一覧";
+}
+
+<div class="flex flex-wrap items-center justify-between gap-3">
+    <h1 class="page-title">会議一覧</h1>
+    <a class="btn-primary" asp-page="./Create">会議を作成</a>
+</div>
+
+@if (Model.Meetings.Count == 0)
+{
+    <p class="mt-6 text-muted-foreground">会議はまだありません。「会議を作成」から始めてください。</p>
+}
+else
+{
+    <div class="table-scroll mt-6">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th scope="col">会議名</th>
+                    <th scope="col">開催日時</th>
+                    <th scope="col">モード</th>
+                    <th scope="col">議事録</th>
+                    <th scope="col"><span class="sr-only">操作</span></th>
+                </tr>
+            </thead>
+            <tbody>
+            @foreach (var meeting in Model.Meetings)
+            {
+                <tr>
+                    <td>@meeting.Title</td>
+                    <td>@(meeting.HeldAt?.ToString(DisplayFormats.HeldAt) ?? "-")</td>
+                    <td>
+                        @(meeting.LiveMode ? "Live" : "ファイル")
+                        @(meeting.TranslateMode ? $" / 翻訳 {ConAI.Web.Data.SupportedLanguages.DisplayName(meeting.TargetLanguage)}" : string.Empty)
+                    </td>
+                    <td>
+                        @switch (meeting.GenerationStatus)
+                        {
+                            case ConAI.Web.Data.GenerationStatus.Queued: <span class="badge-waiting">待機中</span> break;
+                            case ConAI.Web.Data.GenerationStatus.Running: <span class="badge-running">実行中</span> break;
+                            case ConAI.Web.Data.GenerationStatus.Succeeded: <span class="badge-done">完了</span> break;
+                            case ConAI.Web.Data.GenerationStatus.Failed: <span class="badge-failed">失敗</span> break;
+                            default: <span class="text-muted-foreground">-</span> break;
+                        }
+                    </td>
+                    <td>
+                        <div class="flex flex-wrap gap-2">
+                            <a class="btn-secondary" asp-page="./Edit" asp-route-id="@meeting.Id">編集</a>
+                            <a class="btn-secondary" asp-page="./Details" asp-route-id="@meeting.Id">閲覧</a>
+                        </div>
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+}

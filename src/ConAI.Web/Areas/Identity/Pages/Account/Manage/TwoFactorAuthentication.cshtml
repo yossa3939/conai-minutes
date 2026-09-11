@@ -1,0 +1,65 @@
+@page
+@model TwoFactorAuthenticationModel
+
+@{
+    ViewData["Title"] = "二要素認証";
+    ViewData["ActivePage"] = ManageNavPages.TwoFactorAuthentication;
+}
+
+<h2 class="section-title">二要素認証</h2>
+
+<partial name="_StatusMessage" for="StatusMessage" />
+
+@if (Model.Is2faEnabled)
+{
+    if (Model.RecoveryCodesLeft == 0)
+    {
+        <div class="alert-destructive mt-4 max-w-md" role="alert">
+            回復コードが残っていません。作り直すまで、回復コードではログインできません。
+        </div>
+    }
+    else if (Model.RecoveryCodesLeft <= 3)
+    {
+        <div class="alert-destructive mt-4 max-w-md" role="alert">
+            回復コードの残りは @Model.RecoveryCodesLeft 個です。作り直してください。
+        </div>
+    }
+
+    <div class="card mt-6 max-w-md">
+        <h3 class="card-title">現在の設定</h3>
+        <p class="mt-2">二要素認証は有効です。</p>
+        <div class="mt-4 flex flex-wrap gap-3">
+            @if (Model.IsMachineRemembered)
+            {
+                <form method="post">
+                    <button type="submit" class="btn-secondary">このブラウザを忘れる</button>
+                </form>
+            }
+            <a asp-page="./GenerateRecoveryCodes" class="btn-secondary">回復コードを作り直す</a>
+            <a asp-page="./Disable2fa" class="btn-destructive">二要素認証を無効にする</a>
+        </div>
+    </div>
+}
+
+<div class="card mt-6 max-w-md">
+    <h3 class="card-title">認証アプリ</h3>
+    @if (!Model.HasAuthenticator)
+    {
+        <p class="mt-2">認証アプリはまだ登録されていません。</p>
+        <div class="mt-4 flex flex-wrap gap-3">
+            <a id="enable-authenticator" asp-page="./EnableAuthenticator" class="btn-primary">認証アプリを登録する</a>
+        </div>
+    }
+    else
+    {
+        <p class="mt-2">認証アプリが登録されています。</p>
+        <div class="mt-4 flex flex-wrap gap-3">
+            <a id="enable-authenticator" asp-page="./EnableAuthenticator" class="btn-secondary">認証アプリを登録し直す</a>
+            <a id="reset-authenticator" asp-page="./ResetAuthenticator" class="btn-destructive">認証アプリのキーを作り直す</a>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -1,0 +1,18 @@
+{
+  "browser": {
+    "browserName": "chromium",
+    "isolated": true,
+    "launchOptions": {
+      "args": [
+        "--use-fake-ui-for-media-stream",
+        "--use-fake-device-for-media-stream",
+        "--use-file-for-fake-audio-capture=__REPO_ROOT__/e2e/fixtures/meeting.wav"
+      ]
+    },
+    "contextOptions": {
+      "permissions": ["microphone"]
+    }
+  },
+  "outputMode": "stdout",
+  "allowUnrestrictedFileAccess": true
+}

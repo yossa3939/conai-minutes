@@ -1,0 +1,59 @@
+@page
+@model ConAI.Web.Pages.Templates.IndexModel
+@{
+    ViewData["Title"] = "議事録テンプレート";
+}
+
+<div class="flex flex-wrap items-center justify-between gap-3">
+    <h1 class="page-title">議事録テンプレート</h1>
+    <a class="btn-primary" asp-page="./Create">テンプレートを作成</a>
+</div>
+
+<p class="mt-4 text-muted-foreground">議事録の見出しの並びを決めます。既定のテンプレートは、会議を作るときの初期選択に使われます。</p>
+
+<div class="table-scroll mt-6">
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th scope="col">名前</th>
+                <th scope="col">既定</th>
+                <th scope="col">更新日時</th>
+                <th scope="col"><span class="sr-only">操作</span></th>
+            </tr>
+        </thead>
+        <tbody>
+        @foreach (var template in Model.Templates)
+        {
+            <tr data-template-id="@template.Id">
+                <td>@template.Name</td>
+                <td>
+                    @if (template.IsDefault)
+                    {
+                        <span class="badge-done">既定</span>
+                    }
+                    else
+                    {
+                        <span class="text-muted-foreground">-</span>
+                    }
+                </td>
+                <td>@template.UpdatedAt.ToLocalTime().ToString(DisplayFormats.HeldAt)</td>
+                <td>
+                    <div class="flex flex-wrap items-center gap-2">
+                        <a class="btn-secondary" asp-page="./Edit" asp-route-id="@template.Id">編集</a>
+                        <form method="post" asp-page-handler="Duplicate" asp-route-id="@template.Id">
+                            <button type="submit" class="btn-secondary">複製</button>
+                        </form>
+                        @if (!template.IsDefault)
+                        {
+                            <form method="post" asp-page-handler="SetDefault" asp-route-id="@template.Id">
+                                <button type="submit" class="btn-secondary">既定にする</button>
+                            </form>
+                            <a class="btn-secondary" asp-page="./Delete" asp-route-id="@template.Id">削除</a>
+                        }
+                    </div>
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+</div>

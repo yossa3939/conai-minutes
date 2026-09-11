@@ -1,0 +1,29 @@
+@using Microsoft.AspNetCore.Identity
+@inject SignInManager<IdentityUser> SignInManager
+@inject Microsoft.Extensions.Options.IOptions<ConAI.Web.Configuration.AuthOptions> AuthOptions
+
+<ul class="ml-auto flex flex-wrap items-center gap-4">
+@if (SignInManager.IsSignedIn(User))
+{
+    <li>
+        <a class="nav-link" asp-area="Identity" asp-page="/Account/Manage/Index" title="アカウント管理">@User.Identity?.Name</a>
+    </li>
+    <li>
+        <form asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Page("/Index", new { area = "" })">
+            <button type="submit" class="btn-link">ログアウト</button>
+        </form>
+    </li>
+}
+else
+{
+    @if (AuthOptions.Value.AllowSelfRegistration)
+    {
+        <li>
+            <a class="nav-link" id="register" asp-area="Identity" asp-page="/Account/Register">登録</a>
+        </li>
+    }
+    <li>
+        <a class="nav-link" asp-area="Identity" asp-page="/Account/Login">ログイン</a>
+    </li>
+}
+</ul>

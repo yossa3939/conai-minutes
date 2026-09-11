@@ -1,0 +1,51 @@
+@page
+@model LoginModel
+
+@{
+    ViewData["Title"] = "ログイン";
+}
+
+<h1 class="page-title">ログイン</h1>
+
+<div class="card mt-6 max-w-md">
+    <form id="account" method="post">
+        <div asp-validation-summary="ModelOnly" role="alert"></div>
+        <div class="mb-4">
+            <label asp-for="Input.Email" class="form-label"></label>
+            <input asp-for="Input.Email" class="input-field" autocomplete="username" aria-required="true" aria-describedby="Input_Email-error" />
+            <span asp-validation-for="Input.Email" id="Input_Email-error"></span>
+        </div>
+        <div class="mb-4">
+            <label asp-for="Input.Password" class="form-label"></label>
+            <input asp-for="Input.Password" class="input-field" autocomplete="current-password" aria-required="true" aria-describedby="Input_Password-error" />
+            <span asp-validation-for="Input.Password" id="Input_Password-error"></span>
+        </div>
+        <div class="mb-4 flex items-center gap-2">
+            <input asp-for="Input.RememberMe" class="checkbox-field" />
+            <label asp-for="Input.RememberMe" class="checkbox-label"></label>
+        </div>
+        <button id="login-submit" type="submit" class="btn-primary w-full">ログイン</button>
+        <div class="mt-4 text-center">
+            <a id="forgot-password" asp-page="./ForgotPassword" class="btn-link">パスワードを忘れた場合</a>
+        </div>
+    </form>
+</div>
+
+@if (Model.ExternalLogins?.Count > 0)
+{
+    <div class="card mt-6 max-w-md">
+        <h2 class="card-title">外部サービスでログイン</h2>
+        <form id="external-account" asp-page="./ExternalLogin" asp-route-returnUrl="@Model.ReturnUrl" method="post">
+            <div class="mt-4 flex flex-wrap gap-3">
+                @foreach (var provider in Model.ExternalLogins)
+                {
+                    <button type="submit" class="btn-secondary" name="provider" value="@provider.Name">@provider.DisplayName</button>
+                }
+            </div>
+        </form>
+    </div>
+}
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

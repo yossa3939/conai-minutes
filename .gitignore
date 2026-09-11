@@ -1,0 +1,41 @@
+## .NET
+bin/
+obj/
+*.user
+*.suo
+.vs/
+TestResults/
+publish/
+*.log
+
+## アプリのデータと秘密情報
+App_Data/
+src/ConAI.Web/appsettings.json
+appsettings.*.local.json
+.env
+*.pfx
+
+## Node / Playwright
+node_modules/
+.playwright-cli/
+e2e/.playwright-cli/
+e2e/fixtures/*.wav
+e2e/.data/
+e2e/.output/
+
+## Tailwind CSS の生成物
+src/ConAI.Web/wwwroot/css/app.css
+
+## 画像は置かない
+docs/*.png
+
+## 作業メモ
+tasks/
+
+## OS
+Thumbs.db
+.DS_Store
+
+## エディタとツールの作業ディレクトリ
+.claude/
+.serena/

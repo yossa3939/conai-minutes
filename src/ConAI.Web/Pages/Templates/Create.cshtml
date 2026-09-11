@@ -1,0 +1,30 @@
+@page
+@model ConAI.Web.Pages.Templates.CreateModel
+@{
+    ViewData["Title"] = "テンプレートを作成";
+}
+
+<h1 class="page-title">テンプレートを作成</h1>
+
+<form method="post" class="card mt-6 max-w-3xl">
+    <div asp-validation-summary="ModelOnly" role="alert"></div>
+
+    <div class="mb-4">
+        <label asp-for="Input.Name" class="form-label"></label>
+        <input asp-for="Input.Name" class="input-field" autofocus aria-describedby="Input_Name-error" />
+        <span asp-validation-for="Input.Name" id="Input_Name-error"></span>
+    </div>
+
+    <div class="mb-4">
+        <label asp-for="Input.Body" class="form-label"></label>
+        <textarea asp-for="Input.Body" class="input-field font-mono" rows="16"
+                  aria-describedby="Input_Body-help Input_Body-error"></textarea>
+        <span class="form-help" id="Input_Body-help">見出しの行を並べ、その下に書く内容の見本を置きます</span>
+        <span asp-validation-for="Input.Body" id="Input_Body-error"></span>
+    </div>
+
+    <div class="mt-6 flex flex-wrap gap-3">
+        <button type="submit" class="btn-primary">保存する</button>
+        <a class="btn-secondary" asp-page="./Index">戻る</a>
+    </div>
+</form>

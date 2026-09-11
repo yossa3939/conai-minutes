@@ -1,0 +1,25 @@
+@page
+@model ExternalLoginModel
+
+@{
+    ViewData["Title"] = "外部サービスとの連携";
+}
+
+<h1 class="page-title">外部サービスとの連携</h1>
+
+<div class="card mt-6 max-w-md">
+    <p id="external-login-description">@Model.ProviderDisplayName の認証が完了しました。このサイトで使うメールアドレスを入力してください。</p>
+    <form asp-page-handler="Confirmation" asp-route-returnUrl="@Model.ReturnUrl" method="post" class="mt-4">
+        <div asp-validation-summary="ModelOnly" role="alert"></div>
+        <div class="mb-4">
+            <label asp-for="Input.Email" class="form-label"></label>
+            <input asp-for="Input.Email" class="input-field" autocomplete="email" aria-required="true" aria-describedby="Input_Email-error" />
+            <span asp-validation-for="Input.Email" id="Input_Email-error"></span>
+        </div>
+        <button type="submit" class="btn-primary w-full">登録</button>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -1,0 +1,37 @@
+@page
+@model EnableAuthenticatorModel
+
+@{
+    ViewData["Title"] = "認証アプリの登録";
+    ViewData["ActivePage"] = ManageNavPages.TwoFactorAuthentication;
+}
+
+<h2 class="section-title">認証アプリの登録</h2>
+
+<partial name="_StatusMessage" for="StatusMessage" />
+
+<div class="card mt-4 max-w-md">
+    <ol class="list-decimal space-y-4 pl-5">
+        <li>認証アプリ（Microsoft Authenticator や Google Authenticator など）を端末に入れます。</li>
+        <li>
+            <p>認証アプリに次のキーを入力してください。</p>
+            <p id="shared-key" class="mt-2 rounded bg-muted px-3 py-2 font-mono text-lg break-all">@Model.SharedKey</p>
+            <p class="form-help">空白と大文字小文字の違いは無視されます。</p>
+        </li>
+        <li>認証アプリに表示された 6 桁のコードを、下の欄に入力します。</li>
+    </ol>
+
+    <form id="send-code" method="post" class="mt-6">
+        <div asp-validation-summary="ModelOnly" role="alert"></div>
+        <div class="mb-4">
+            <label asp-for="Input.Code" class="form-label"></label>
+            <input asp-for="Input.Code" class="input-field" autocomplete="off" aria-required="true" aria-describedby="Input_Code-error" />
+            <span asp-validation-for="Input.Code" id="Input_Code-error"></span>
+        </div>
+        <button type="submit" class="btn-primary w-full">確認する</button>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

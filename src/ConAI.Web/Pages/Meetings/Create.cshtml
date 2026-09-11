@@ -1,0 +1,79 @@
+@page
+@model ConAI.Web.Pages.Meetings.CreateModel
+@{
+    ViewData["Title"] = "会議を作成";
+}
+
+<h1 class="page-title">会議を作成</h1>
+
+<form method="post" class="card mt-6 max-w-xl">
+    <div asp-validation-summary="ModelOnly" role="alert"></div>
+
+    <div class="mb-4">
+        <label asp-for="Input.Title" class="form-label"></label>
+        <input asp-for="Input.Title" class="input-field" autofocus aria-describedby="Input_Title-error" />
+        <span asp-validation-for="Input.Title" id="Input_Title-error"></span>
+    </div>
+
+    <div class="mb-4">
+        <label asp-for="Input.HeldAt" class="form-label"></label>
+        <input asp-for="Input.HeldAt" type="text" class="input-field" data-conai-datetime
+               placeholder="@DisplayFormats.HeldAt" autocomplete="off" aria-describedby="Input_HeldAt-error" />
+        <span asp-validation-for="Input.HeldAt" id="Input_HeldAt-error"></span>
+    </div>
+
+    <fieldset class="mb-4">
+        <legend class="form-label">モード</legend>
+        <div class="capture-source-options">
+            <label class="capture-source-option">
+                <input asp-for="Input.LiveMode" type="radio" value="true" id="Input_LiveMode_live" />
+                <span>Live モード</span>
+            </label>
+            <label class="capture-source-option">
+                <input asp-for="Input.LiveMode" type="radio" value="false" id="Input_LiveMode_file" />
+                <span>ファイルモード</span>
+            </label>
+        </div>
+        <span class="form-help">Live モードは録音してその場で文字起こしします。ファイルモードは添付した音声・動画から、生成時に文字起こしします。</span>
+    </fieldset>
+
+    <div class="mb-4 flex items-center gap-2">
+        <input asp-for="Input.TranslateMode" class="checkbox-field" />
+        <label asp-for="Input.TranslateMode" class="checkbox-label"></label>
+    </div>
+
+    <div class="mb-4" id="target-language-field" hidden="@(Model.Input.TranslateMode ? null : "hidden")">
+        <label asp-for="Input.TargetLanguage" class="form-label"></label>
+        <select asp-for="Input.TargetLanguage" asp-items="Model.Languages" class="input-field" aria-describedby="Input_TargetLanguage-error"></select>
+        <span asp-validation-for="Input.TargetLanguage" id="Input_TargetLanguage-error"></span>
+    </div>
+
+    <div class="mb-4">
+        <label for="minutes-template" class="form-label">テンプレート</label>
+        <select id="minutes-template" name="Input.MinutesTemplateId" class="input-field"
+                aria-describedby="Input_MinutesTemplateId-error">
+            @foreach (var item in Model.MinutesTemplates)
+            {
+                <option value="@item.Value" selected="@(item.Selected ? "selected" : null)">@item.Text</option>
+            }
+        </select>
+        <span asp-validation-for="Input.MinutesTemplateId" id="Input_MinutesTemplateId-error"></span>
+        <span class="form-help">議事録の見出しの並びを決めます。テンプレートは「テンプレート」から作れます。</span>
+    </div>
+
+    <div class="mt-6 flex flex-wrap gap-3">
+        <button type="submit" class="btn-primary">作成する</button>
+        <a class="btn-secondary" asp-page="./Index">戻る</a>
+    </div>
+</form>
+
+@section Styles {
+    <link rel="stylesheet" href="~/lib/flatpickr/dist/flatpickr.min.css" asp-append-version="true" />
+}
+
+@section Scripts {
+    <script src="~/lib/flatpickr/dist/flatpickr.min.js" asp-append-version="true"></script>
+    <script src="~/lib/flatpickr/dist/l10n/ja.js" asp-append-version="true"></script>
+    <script src="~/js/held-at-picker.js" type="module" asp-append-version="true"></script>
+    <script src="~/js/translate-toggle.js" type="module" asp-append-version="true"></script>
+}

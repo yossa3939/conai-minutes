@@ -1,0 +1,66 @@
+@page "{id:guid}"
+@using ConAI.Web.Notifications
+@model ConAI.Web.Pages.Notifications.EditModel
+@{
+    ViewData["Title"] = "宛先を編集";
+}
+
+<h1 class="page-title">宛先を編集</h1>
+
+<form method="post" class="card mt-6 max-w-3xl">
+    <div asp-validation-summary="ModelOnly" role="alert"></div>
+
+    <div class="mb-4">
+        <label asp-for="Input.Name" class="form-label"></label>
+        <input asp-for="Input.Name" class="input-field" autofocus aria-describedby="Input_Name-error" />
+        <span asp-validation-for="Input.Name" id="Input_Name-error"></span>
+    </div>
+
+    <div class="mb-4">
+        <span class="form-label">種別</span>
+        <p class="mt-1">@WebhookKinds.DisplayName(Model.Kind)</p>
+        <span class="form-help">種別は変えられません。別のサービスへ送るなら、新しい宛先として登録してください。</span>
+    </div>
+
+    <div class="mb-4">
+        <label asp-for="Input.Url" class="form-label"></label>
+        <input asp-for="Input.Url" class="input-field" aria-describedby="Input_Url-help Input_Url-error" />
+        <span class="form-help" id="Input_Url-help">
+            いまの宛先：<span class="font-mono">@Model.UrlHint</span>。空のまま保存すると、この宛先のまま変えません。
+        </span>
+        <span asp-validation-for="Input.Url" id="Input_Url-error"></span>
+    </div>
+
+    <div class="mb-4 flex items-center gap-2">
+        <input asp-for="Input.NotifyOnSuccess" class="checkbox-field" />
+        <label asp-for="Input.NotifyOnSuccess" class="checkbox-label"></label>
+    </div>
+
+    <div class="mb-4 flex items-center gap-2">
+        <input asp-for="Input.NotifyOnFailure" class="checkbox-field" />
+        <label asp-for="Input.NotifyOnFailure" class="checkbox-label"></label>
+    </div>
+
+    <div class="mb-4 flex items-center gap-2">
+        <input asp-for="Input.IsEnabled" class="checkbox-field" />
+        <label asp-for="Input.IsEnabled" class="checkbox-label"></label>
+    </div>
+
+    <div class="mt-6 flex flex-wrap gap-3">
+        <button type="submit" class="btn-primary">保存する</button>
+        <a class="btn-secondary" asp-page="./Index">戻る</a>
+    </div>
+</form>
+
+<div class="card mt-6 max-w-3xl" data-notify data-notify-url="@Url.Content("~/api/notifications/" + Model.Id + "/test")">
+    <h2 class="card-title">テスト送信</h2>
+    <p class="mt-2 text-muted-foreground">
+        保存済みの宛先へ 1 件だけ送って、届くかどうかを確かめます。編集中の内容ではなく、保存されている宛先へ送ります。
+    </p>
+    <button type="button" class="btn-secondary mt-4" data-notify-button>テスト送信</button>
+    <p class="mt-4 hidden" data-notify-result role="status"></p>
+</div>
+
+@section Scripts {
+    <script src="~/js/notify.js" type="module" asp-append-version="true"></script>
+}

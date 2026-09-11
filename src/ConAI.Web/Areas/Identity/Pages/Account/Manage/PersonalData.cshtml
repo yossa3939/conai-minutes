@@ -1,0 +1,17 @@
+@page
+@model PersonalDataModel
+
+@{
+    ViewData["Title"] = "個人データ";
+    ViewData["ActivePage"] = ManageNavPages.PersonalData;
+}
+
+<h2 class="section-title">個人データ</h2>
+
+<div class="card mt-4 max-w-md">
+    <p>このアカウントに保存されている個人データを JSON 形式で取り出せます。</p>
+    <form id="download-data" asp-page="DownloadPersonalData" method="post" class="mt-6">
+        <button id="download-data-button" type="submit" class="btn-primary">ダウンロード</button>
+    </form>
+    <p class="form-help mt-4">アカウントの削除は、この画面からは行えません。管理者に連絡してください。</p>
+</div>

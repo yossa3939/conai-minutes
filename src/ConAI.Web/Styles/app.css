@@ -1,0 +1,528 @@
+@import "tailwindcss" source(none);
+
+@source "../Pages/**/*.cshtml";
+@source "../Areas/**/*.cshtml";
+@source "../Areas/**/*.cs";
+@source "../wwwroot/js/**/*.js";
+
+/* 設計トークン。配色、タイポグラフィ、余白の決定値をここに置く。
+   on-destructive と primary-hover / destructive-hover は、塗りボタンの文字色とホバー色として対で要るため加えた。 */
+@theme static {
+    --color-primary: #0F766E;
+    --color-primary-hover: #115E59;
+    --color-on-primary: #FFFFFF;
+    --color-ring: #0D9488;
+    --color-background: #F0FDFA;
+    --color-foreground: #134E4A;
+    --color-card: #FFFFFF;
+    --color-border: #99F6E4;
+    --color-muted: #E8F1F4;
+    --color-muted-foreground: #475569;
+    --color-destructive: #DC2626;
+    --color-destructive-hover: #B91C1C;
+    --color-on-destructive: #FFFFFF;
+    --color-success: #15803D;
+
+    --font-sans: system-ui, "Segoe UI", "Hiragino Sans", "Yu Gothic UI", Meiryo, "Noto Sans JP", sans-serif;
+
+    --radius-control: 0.375rem;
+    --radius-card: 0.5rem;
+}
+
+@layer base {
+    html {
+        font-family: var(--font-sans);
+    }
+
+    body {
+        background-color: var(--color-background);
+        color: var(--color-foreground);
+        font-size: 16px;
+        line-height: 1.6;
+    }
+
+    /* フォーカスは必ず見える。輪郭は 2px、外側に 2px 逃がす */
+    :focus-visible {
+        outline: 2px solid var(--color-ring);
+        outline-offset: 2px;
+    }
+
+    a {
+        color: var(--color-primary);
+    }
+
+    a:hover {
+        color: var(--color-primary-hover);
+    }
+
+    code {
+        font-family: ui-monospace, "Cascadia Mono", Consolas, "Courier New", monospace;
+    }
+}
+
+/* ---- 見出し ---- */
+
+@utility page-title {
+    @apply text-2xl font-bold;
+}
+
+@utility section-title {
+    @apply mt-8 text-xl font-semibold;
+}
+
+/* ---- カード ---- */
+
+@utility card {
+    @apply p-6;
+    background-color: var(--color-card);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-card);
+}
+
+@utility card-title {
+    @apply text-lg font-semibold;
+}
+
+/* ---- ボタン ----
+   高さは 44px 以上（min-h-11）、左右の余白は 16px（px-4）。
+   ホバーは色だけを変える。位置は動かさない。 */
+
+@utility btn-primary {
+    @apply inline-flex min-h-11 cursor-pointer items-center justify-center px-4 py-2 text-center font-semibold no-underline transition-colors duration-150;
+    border: 1px solid var(--color-primary);
+    border-radius: var(--radius-control);
+    background-color: var(--color-primary);
+    color: var(--color-on-primary);
+
+    &:hover {
+        background-color: var(--color-primary-hover);
+        border-color: var(--color-primary-hover);
+        color: var(--color-on-primary);
+    }
+
+    &:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+}
+
+@utility btn-secondary {
+    @apply inline-flex min-h-11 cursor-pointer items-center justify-center px-4 py-2 text-center font-semibold no-underline transition-colors duration-150;
+    border: 1px solid var(--color-primary);
+    border-radius: var(--radius-control);
+    background-color: var(--color-card);
+    color: var(--color-primary);
+
+    &:hover {
+        background-color: var(--color-muted);
+        color: var(--color-primary-hover);
+    }
+
+    &:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+}
+
+@utility btn-destructive {
+    @apply inline-flex min-h-11 cursor-pointer items-center justify-center px-4 py-2 text-center font-semibold no-underline transition-colors duration-150;
+    border: 1px solid var(--color-destructive);
+    border-radius: var(--radius-control);
+    background-color: var(--color-destructive);
+    color: var(--color-on-destructive);
+
+    &:hover {
+        background-color: var(--color-destructive-hover);
+        border-color: var(--color-destructive-hover);
+        color: var(--color-on-destructive);
+    }
+
+    &:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+}
+
+@utility btn-link {
+    @apply inline-flex min-h-11 cursor-pointer items-center px-1 py-2 underline transition-colors duration-150;
+    border: 0;
+    background-color: transparent;
+    color: var(--color-primary);
+
+    &:hover {
+        color: var(--color-primary-hover);
+    }
+
+    &:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+}
+
+/* 録音ボタン。停止中は輪郭、録音中は塗り（下の .conai-recording が上書きする） */
+@utility btn-record {
+    @apply inline-flex min-h-11 cursor-pointer items-center justify-center px-4 py-2 text-center font-semibold no-underline transition-colors duration-150;
+    border: 1px solid var(--color-destructive);
+    border-radius: var(--radius-control);
+    background-color: var(--color-card);
+    color: var(--color-destructive);
+
+    &:hover {
+        background-color: var(--color-muted);
+    }
+
+    &:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+}
+
+/* ---- フォーム ---- */
+
+@utility input-field {
+    @apply block min-h-11 w-full px-3 py-2;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-control);
+    background-color: var(--color-card);
+    color: var(--color-foreground);
+    transition: border-color 150ms ease;
+
+    &:focus {
+        border-color: var(--color-ring);
+    }
+
+    &:disabled {
+        background-color: var(--color-muted);
+        color: var(--color-muted-foreground);
+    }
+}
+
+@utility form-label {
+    @apply mb-1 block font-medium;
+}
+
+@utility form-help {
+    @apply mt-1 block text-sm;
+    color: var(--color-muted-foreground);
+}
+
+@utility checkbox-field {
+    @apply size-5 cursor-pointer;
+    accent-color: var(--color-primary);
+}
+
+@utility checkbox-label {
+    @apply cursor-pointer select-none;
+}
+
+/* ---- 表 ---- */
+
+@utility table-scroll {
+    @apply w-full overflow-x-auto;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-card);
+}
+
+@utility data-table {
+    @apply w-full border-collapse text-left;
+    background-color: var(--color-card);
+
+    & th {
+        @apply px-4 py-3 font-semibold whitespace-nowrap;
+        background-color: var(--color-muted);
+        border-bottom: 1px solid var(--color-border);
+    }
+
+    & td {
+        @apply px-4 py-3 align-top;
+        border-bottom: 1px solid var(--color-border);
+    }
+
+    & tbody tr:last-child td {
+        border-bottom: 0;
+    }
+}
+
+/* ---- 状態バッジ ----
+   色だけで意味を伝えない。必ず文字を併記する。 */
+
+@utility badge-waiting {
+    @apply inline-flex items-center px-2 py-0.5 text-sm font-medium whitespace-nowrap;
+    border: 1px solid var(--color-muted-foreground);
+    border-radius: var(--radius-control);
+    background-color: var(--color-card);
+    color: var(--color-muted-foreground);
+}
+
+@utility badge-running {
+    @apply inline-flex items-center px-2 py-0.5 text-sm font-medium whitespace-nowrap;
+    border: 1px solid var(--color-primary);
+    border-radius: var(--radius-control);
+    background-color: var(--color-card);
+    color: var(--color-primary);
+}
+
+@utility badge-done {
+    @apply inline-flex items-center px-2 py-0.5 text-sm font-medium whitespace-nowrap;
+    border: 1px solid var(--color-success);
+    border-radius: var(--radius-control);
+    background-color: var(--color-card);
+    color: var(--color-success);
+}
+
+@utility badge-failed {
+    @apply inline-flex items-center px-2 py-0.5 text-sm font-medium whitespace-nowrap;
+    border: 1px solid var(--color-destructive);
+    border-radius: var(--radius-control);
+    background-color: var(--color-card);
+    color: var(--color-destructive);
+}
+
+/* ---- 通知 ---- */
+
+@utility alert-destructive {
+    @apply px-4 py-3;
+    border: 1px solid var(--color-destructive);
+    border-radius: var(--radius-control);
+    background-color: var(--color-card);
+    color: var(--color-destructive);
+}
+
+@utility alert-success {
+    @apply px-4 py-3;
+    border: 1px solid var(--color-success);
+    border-radius: var(--radius-control);
+    background-color: var(--color-card);
+    color: var(--color-success);
+}
+
+@utility alert-note {
+    @apply px-4 py-3;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-control);
+    background-color: var(--color-muted);
+    color: var(--color-foreground);
+}
+
+/* ---- ナビゲーション ---- */
+
+@utility nav-link {
+    @apply inline-flex min-h-11 items-center px-2 py-2 font-medium no-underline transition-colors duration-150;
+    color: var(--color-foreground);
+
+    &:hover {
+        color: var(--color-primary);
+    }
+}
+
+/* アカウント管理の左メニュー。
+   manage-nav-link と manage-nav-link-active は排他で、両方を同じ要素に付けない。 */
+@utility manage-nav-link {
+    @apply block min-h-11 px-3 py-2 no-underline transition-colors duration-150;
+    border-radius: var(--radius-control);
+    color: var(--color-foreground);
+
+    &:hover {
+        background-color: var(--color-muted);
+        color: var(--color-primary);
+    }
+}
+
+@utility manage-nav-link-active {
+    @apply block min-h-11 px-3 py-2 font-semibold no-underline transition-colors duration-150;
+    border-radius: var(--radius-control);
+    background-color: var(--color-primary);
+    color: var(--color-on-primary);
+
+    &:hover {
+        background-color: var(--color-primary-hover);
+        color: var(--color-on-primary);
+    }
+}
+
+/* ================================================================
+   ここから下は素の CSS。@layer に入れないので、上のユーティリティより
+   後に適用される。クラス名を JavaScript や jquery-validation が
+   付け外しするため、マークアップ側では制御できない。
+   ================================================================ */
+
+/* Live 文字起こしの表示領域（旧 conai.css から移設） */
+.conai-live-box {
+    min-height: 8rem;
+    max-height: 20rem;
+    overflow-y: auto;
+    white-space: pre-wrap;
+    padding: 1rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-card);
+    background-color: var(--color-card);
+}
+
+.conai-live-box:empty::before {
+    content: "ここに文字起こしが表示されます。";
+    color: var(--color-muted-foreground);
+}
+
+/* 録音中。meeting.js が <body> ではなく #conai-meeting に付ける */
+.conai-recording #record-button {
+    background-color: var(--color-destructive);
+    border-color: var(--color-destructive);
+    color: var(--color-on-destructive);
+}
+
+/* 音声の取り込み元。非活性は不透明度とカーソルで示す */
+.capture-source-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.capture-source-option {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 2.75rem;
+    cursor: pointer;
+    user-select: none;
+}
+
+.capture-source-option:has(input:disabled) {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.capture-source-option input {
+    width: 1.25rem;
+    height: 1.25rem;
+    cursor: inherit;
+    accent-color: var(--color-primary);
+}
+
+/* Markdig が出す議事録の HTML。個々の要素にクラスを付けられないので子孫セレクタで当てる */
+.conai-prose > * + * {
+    margin-top: 0.75rem;
+}
+
+.conai-prose h1 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-top: 1.5rem;
+}
+
+.conai-prose h2 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-top: 1.5rem;
+}
+
+.conai-prose h3 {
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin-top: 1.25rem;
+}
+
+.conai-prose ul {
+    list-style: disc;
+    padding-left: 1.5rem;
+}
+
+.conai-prose ol {
+    list-style: decimal;
+    padding-left: 1.5rem;
+}
+
+.conai-prose li + li {
+    margin-top: 0.25rem;
+}
+
+.conai-prose a {
+    color: var(--color-primary);
+    text-decoration: underline;
+}
+
+.conai-prose code {
+    padding: 0.125rem 0.25rem;
+    border-radius: 0.25rem;
+    background-color: var(--color-muted);
+    font-size: 0.875em;
+}
+
+.conai-prose pre {
+    padding: 1rem;
+    overflow-x: auto;
+    border-radius: var(--radius-control);
+    background-color: var(--color-muted);
+}
+
+.conai-prose pre code {
+    padding: 0;
+    background-color: transparent;
+}
+
+.conai-prose table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.conai-prose th,
+.conai-prose td {
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--color-border);
+    text-align: left;
+}
+
+.conai-prose th {
+    background-color: var(--color-muted);
+}
+
+.conai-prose blockquote {
+    padding-left: 1rem;
+    border-left: 3px solid var(--color-border);
+    color: var(--color-muted-foreground);
+}
+
+/* jquery-validation-unobtrusive が付け外しする 5 クラス */
+.field-validation-error {
+    display: block;
+    margin-top: 0.25rem;
+    color: var(--color-destructive);
+    font-size: 0.875rem;
+}
+
+.field-validation-valid {
+    display: none;
+}
+
+.input-validation-error {
+    border-color: var(--color-destructive);
+}
+
+.validation-summary-errors {
+    margin-bottom: 1rem;
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--color-destructive);
+    border-radius: var(--radius-control);
+    color: var(--color-destructive);
+}
+
+.validation-summary-errors ul {
+    margin: 0;
+    padding-left: 1.25rem;
+    list-style: disc;
+}
+
+.validation-summary-valid {
+    display: none;
+}
+
+/* 動きを減らす設定の端末では、色の遷移も止める */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        transition-duration: 0.01ms !important;
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        scroll-behavior: auto !important;
+    }
+}

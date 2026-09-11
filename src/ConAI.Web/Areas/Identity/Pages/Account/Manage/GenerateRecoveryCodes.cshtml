@@ -1,0 +1,19 @@
+@page
+@model GenerateRecoveryCodesModel
+
+@{
+    ViewData["Title"] = "回復コードの作り直し";
+    ViewData["ActivePage"] = ManageNavPages.TwoFactorAuthentication;
+}
+
+<h2 class="section-title">回復コードの作り直し</h2>
+
+<div class="alert-destructive mt-4 max-w-md" role="alert">
+    作り直すと、いま持っている回復コードは使えなくなります。認証アプリを使えなくなったとき、回復コードが無いとログインできません。新しいコードは安全な場所に保管してください。
+</div>
+
+<div class="card mt-4 max-w-md">
+    <form method="post">
+        <button type="submit" class="btn-destructive">回復コードを作り直す</button>
+    </form>
+</div>

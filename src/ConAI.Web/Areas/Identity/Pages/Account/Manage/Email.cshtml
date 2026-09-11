@@ -1,0 +1,35 @@
+@page
+@model EmailModel
+
+@{
+    ViewData["Title"] = "メールアドレス";
+    ViewData["ActivePage"] = ManageNavPages.Email;
+}
+
+<h2 class="section-title">メールアドレスの変更</h2>
+
+<partial name="_StatusMessage" for="StatusMessage" />
+
+<div class="alert-note mt-4 max-w-md" role="note">
+    この環境ではメール送信が設定されていないため、この操作は完了しません。管理者に連絡してください。
+</div>
+
+<div class="card mt-4 max-w-md">
+    <form id="email-form" method="post">
+        <div asp-validation-summary="ModelOnly" role="alert"></div>
+        <div class="mb-4">
+            <label for="Email" class="form-label">現在のメールアドレス</label>
+            <input asp-for="Email" class="input-field" readonly />
+        </div>
+        <div class="mb-4">
+            <label asp-for="Input.NewEmail" class="form-label"></label>
+            <input asp-for="Input.NewEmail" class="input-field" autocomplete="email" aria-required="true" aria-describedby="Input_NewEmail-error" />
+            <span asp-validation-for="Input.NewEmail" id="Input_NewEmail-error"></span>
+        </div>
+        <button id="change-email-button" type="submit" asp-page-handler="ChangeEmail" class="btn-primary w-full">確認メールを送る</button>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

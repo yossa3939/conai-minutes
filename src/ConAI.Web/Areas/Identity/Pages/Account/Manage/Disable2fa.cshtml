@@ -1,0 +1,22 @@
+@page
+@model Disable2faModel
+
+@{
+    ViewData["Title"] = "二要素認証の無効化";
+    ViewData["ActivePage"] = ManageNavPages.TwoFactorAuthentication;
+}
+
+<h2 class="section-title">二要素認証の無効化</h2>
+
+<div class="alert-destructive mt-4 max-w-md" role="alert">
+    無効にしても、認証アプリに登録したキーは変わりません。キーそのものを変えるときは、認証アプリのキーを作り直してください。
+</div>
+
+<div class="card mt-4 max-w-md">
+    <form method="post">
+        <button type="submit" class="btn-destructive">二要素認証を無効にする</button>
+    </form>
+    <p class="mt-4">
+        <a asp-page="./ResetAuthenticator" class="btn-link">認証アプリのキーを作り直す</a>
+    </p>
+</div>
